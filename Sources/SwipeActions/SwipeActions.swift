@@ -33,16 +33,16 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
     @State private var offset: CGFloat = 0
     @State private var oldOffset: CGFloat = 0
     @State private var visibleButton: VisibleButton = .none
-    
+
     /**
      To detect if drag gesture is ended because of known issue that drag gesture onEnded not called:
      https://stackoverflow.com/questions/58807357/detect-draggesture-cancelation-in-swiftui
      */
     @GestureState private var dragGestureActive: Bool = false
-    
+
     @State private var maxLeadingOffset: CGFloat = .zero
     @State private var minTrailingOffset: CGFloat = .zero
-    
+
     @State private var contentWidth: CGFloat = .zero
     @State private var isDeletedRow: Bool = false
     /**
@@ -50,7 +50,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
      */
     @State private var maxLeadingOffsetIsCounted: Bool = false
     @State private var minTrailingOffsetIsCounted: Bool = false
-    
+
     private let menuTyped: MenuType
     private let leadingSwipeView: Group<V1>?
     private let trailingSwipeView: Group<V2>?
@@ -60,7 +60,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
     private let fullSwipeRole: SwipeRole
     private let action: (() -> Void)?
     private let id: UUID = UUID()
-    
+
     init(
         menu: MenuType,
         allowsFullSwipe: Bool = false,
@@ -98,7 +98,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
         trailingSwipeView = nil
         self.action = action
     }
-    
+
     init(
         menu: MenuType,
         allowsFullSwipe: Bool = false,
@@ -117,13 +117,13 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
         leadingSwipeView = nil
         self.action = action
     }
-    
+
     func reset() {
         visibleButton = .none
         offset = 0
         oldOffset = 0
     }
-    
+
     var leadingView: some View {
         leadingSwipeView
             .measureSize {
@@ -157,7 +157,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
                 }
             }
     }
-    
+
     var swipedMenu: some View {
         HStack(spacing: 0) {
             leadingView
@@ -166,7 +166,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
                 .offset(x: allowsFullSwipe && offset < minTrailingOffset ? (-1 * minTrailingOffset) + offset : 0)
         }
     }
-    
+
     var slidedMenu: some View {
         HStack(spacing: 0) {
             leadingView
@@ -176,9 +176,9 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
                 .offset(x: (-1 * minTrailingOffset) + offset)
         }
     }
-    
+
     func gesturedContent(content: Content) -> some View {
-        
+
         content
             .id(id)
             .contentShape(Rectangle()) ///otherwise swipe won't work in vacant area
@@ -187,14 +187,14 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
                 contentWidth = $0.width
             }
             .gesture(
-//                DragGesture(minimumDistance: 15, coordinateSpace: .local)
+                //                DragGesture(minimumDistance: 15, coordinateSpace: .local)
                 DragGesture(minimumDistance: 15, coordinateSpace: .global)
                     .updating($dragGestureActive) { value, state, transaction in
                         state = true
                     }
                     .onChanged { value in
                         let totalSlide = value.translation.width + oldOffset
-                        
+
                         if allowsFullSwipe && ...0 ~= Int(totalSlide) {
                             withAnimation {
                                 offset = totalSlide
@@ -236,7 +236,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
                                 reset()
                             }
                         }
-                        
+
                         if
                             allowsFullSwipe,
                             value.translation.width < -(contentWidth * 0.7)
@@ -244,7 +244,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
                             withAnimation(.linear(duration: 0.3)) {
                                 offset = -contentWidth
                             }
-                            
+
                             switch fullSwipeRole {
                             case .destructive:
                                 withAnimation(.linear(duration: 0.3)) {
@@ -257,7 +257,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
                             default:
                                 break
                             }
-                            
+
                             action?()
                         }
                     })
@@ -312,29 +312,29 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
                 }
             }
     }
-    
+
     public func body(content: Content) -> some View {
         switch menuTyped {
         case .slided:
-            ZStack {
-                swipeColor
-                    .zIndex(1)
-                slidedMenu
-                    .zIndex(2)
-                gesturedContent(content: content)
-                    .zIndex(3)
-            }
-            .frame(height: isDeletedRow ? 0 : nil, alignment: .top)
+            gesturedContent(content: content)
+                .zIndex(3)
+                .background {
+                    swipeColor
+                        .zIndex(1)
+                    slidedMenu
+                        .zIndex(2)
+                }
+                .frame(height: isDeletedRow ? 0 : nil, alignment: .top)
         case .swiped:
-            ZStack {
-                swipeColor
-                    .zIndex(1)
-                swipedMenu
-                    .zIndex(2)
-                gesturedContent(content: content)
-                    .zIndex(3)
-            }
-           .frame(height: isDeletedRow ? 0 : nil, alignment: .top)
+            gesturedContent(content: content)
+                .zIndex(3)
+                .background {
+                    swipeColor
+                        .zIndex(1)
+                    swipedMenu
+                        .zIndex(2)
+                }
+                .frame(height: isDeletedRow ? 0 : nil, alignment: .top)
         }
     }
 }
