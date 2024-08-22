@@ -180,7 +180,6 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
     func gesturedContent(content: Content) -> some View {
 
         content
-            .id(id)
             .contentShape(Rectangle()) ///otherwise swipe won't work in vacant area
             .offset(x: offset)
             .measureSize {
