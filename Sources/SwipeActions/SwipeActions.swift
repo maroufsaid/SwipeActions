@@ -59,9 +59,10 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
     private let allowsFullSwipe: Bool
     private let fullSwipeRole: SwipeRole
     private let action: (() -> Void)?
-    private let id: UUID = UUID()
+    private let id: UUID
 
     init(
+        id: UUID = UUID(),
         menu: MenuType,
         allowsFullSwipe: Bool = false,
         fullSwipeRole: SwipeRole = .defaults,
@@ -70,6 +71,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
         @ViewBuilder _ content: @escaping () -> TupleView<(Leading<V1>, Trailing<V2>)>,
         action: (() -> Void)? = nil
     ) {
+        self.id = id
         menuTyped = menu
         self.allowsFullSwipe = allowsFullSwipe
         self.fullSwipeRole = fullSwipeRole
@@ -81,6 +83,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
     }
 
     init(
+        id: UUID = UUID(),
         menu: MenuType,
         allowsFullSwipe: Bool = false,
         fullSwipeRole: SwipeRole = .defaults,
@@ -89,6 +92,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
         @ViewBuilder leading: @escaping () -> V1,
         action: (() -> Void)? = nil
     ) {
+        self.id = id
         menuTyped = menu
         self.allowsFullSwipe = allowsFullSwipe
         self.fullSwipeRole = fullSwipeRole
@@ -100,6 +104,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
     }
 
     init(
+        id: UUID = UUID(),
         menu: MenuType,
         allowsFullSwipe: Bool = false,
         fullSwipeRole: SwipeRole = .defaults,
@@ -108,6 +113,7 @@ struct SwipeAction<V1: View, V2: View>: ViewModifier {
         @ViewBuilder trailing: @escaping () -> V2,
         action: (() -> Void)? = nil
     ) {
+        self.id = id
         menuTyped = menu
         self.allowsFullSwipe = allowsFullSwipe
         self.fullSwipeRole = fullSwipeRole
